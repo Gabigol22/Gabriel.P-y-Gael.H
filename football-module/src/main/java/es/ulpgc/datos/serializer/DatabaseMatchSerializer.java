@@ -1,8 +1,8 @@
 package es.ulpgc.datos.serializer;
 
 import es.ulpgc.datos.model.Match;
-
 import java.sql.*;
+
 import java.util.List;
 
 public class DatabaseMatchSerializer implements MatchSerializer {
