@@ -2,7 +2,6 @@ package es.ulpgc.datos.serializer;
 
 import es.ulpgc.datos.model.Match;
 import java.sql.*;
-
 import java.util.List;
 
 public class DatabaseMatchSerializer implements MatchSerializer {
@@ -37,28 +36,40 @@ public class DatabaseMatchSerializer implements MatchSerializer {
 
     @Override
     public void serialize(List<Match> matches) {
-        String sql = """
+        String checkSql = """
+                SELECT COUNT(*) FROM matches
+                WHERE home_team = ? AND away_team = ? AND match_date = ?
+                """;
+        String insertSql = """
                 INSERT INTO matches
                     (home_team, away_team, home_score, away_score, status, competition, match_date, captured_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+        int inserted = 0;
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
             for (Match match : matches) {
-                pstmt.setString(1, match.getHomeTeam());
-                pstmt.setString(2, match.getAwayTeam());
-                pstmt.setInt(3, match.getHomeScore());
-                pstmt.setInt(4, match.getAwayScore());
-                pstmt.setString(5, match.getStatus());
-                pstmt.setString(6, match.getCompetition());
-                pstmt.setString(7, match.getMatchDate().toString());
-                pstmt.setString(8, match.getCapturedAt().toString());
-                pstmt.executeUpdate();
+                try (PreparedStatement check = conn.prepareStatement(checkSql)) {
+                    check.setString(1, match.getHomeTeam());
+                    check.setString(2, match.getAwayTeam());
+                    check.setString(3, match.getMatchDate().toString());
+                    ResultSet rs = check.executeQuery();
+                    if (rs.next() && rs.getInt(1) == 0) {
+                        try (PreparedStatement insert = conn.prepareStatement(insertSql)) {
+                            insert.setString(1, match.getHomeTeam());
+                            insert.setString(2, match.getAwayTeam());
+                            insert.setInt(3, match.getHomeScore());
+                            insert.setInt(4, match.getAwayScore());
+                            insert.setString(5, match.getStatus());
+                            insert.setString(6, match.getCompetition());
+                            insert.setString(7, match.getMatchDate().toString());
+                            insert.setString(8, match.getCapturedAt().toString());
+                            insert.executeUpdate();
+                            inserted++;
+                        }
+                    }
+                }
             }
-
-            System.out.println("Guardados " + matches.size() + " partidos en la base de datos.");
-
+            System.out.println("Guardados " + inserted + " partidos nuevos en la base de datos.");
         } catch (SQLException e) {
             System.err.println("Error al guardar en la base de datos: " + e.getMessage());
         }
