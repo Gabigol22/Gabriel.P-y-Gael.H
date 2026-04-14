@@ -36,42 +36,37 @@ public class DatabaseMatchSerializer implements MatchSerializer {
 
     @Override
     public void serialize(List<Match> matches) {
-        String checkSql = """
-                SELECT COUNT(*) FROM matches
-                WHERE home_team = ? AND away_team = ? AND match_date = ?
-                """;
+        String deleteSql = "DELETE FROM matches"; // <--- Línea mágica
         String insertSql = """
-                INSERT INTO matches
-                    (home_team, away_team, home_score, away_score, status, competition, match_date, captured_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """;
-        int inserted = 0;
+            INSERT INTO matches
+                (home_team, away_team, home_score, away_score, status, competition, match_date, captured_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """;
+
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            for (Match match : matches) {
-                try (PreparedStatement check = conn.prepareStatement(checkSql)) {
-                    check.setString(1, match.getHomeTeam());
-                    check.setString(2, match.getAwayTeam());
-                    check.setString(3, match.getMatchDate().toString());
-                    ResultSet rs = check.executeQuery();
-                    if (rs.next() && rs.getInt(1) == 0) {
-                        try (PreparedStatement insert = conn.prepareStatement(insertSql)) {
-                            insert.setString(1, match.getHomeTeam());
-                            insert.setString(2, match.getAwayTeam());
-                            insert.setInt(3, match.getHomeScore());
-                            insert.setInt(4, match.getAwayScore());
-                            insert.setString(5, match.getStatus());
-                            insert.setString(6, match.getCompetition());
-                            insert.setString(7, match.getMatchDate().toString());
-                            insert.setString(8, match.getCapturedAt().toString());
-                            insert.executeUpdate();
-                            inserted++;
-                        }
-                    }
-                }
+            // 1. Limpiamos la tabla primero
+            try (Statement deleteStmt = conn.createStatement()) {
+                deleteStmt.execute(deleteSql);
             }
-            System.out.println("Guardados " + inserted + " partidos nuevos en la base de datos.");
+
+            // 2. Insertamos todo de nuevo
+            try (PreparedStatement insert = conn.prepareStatement(insertSql)) {
+                for (Match match : matches) {
+                    insert.setString(1, match.getHomeTeam());
+                    insert.setString(2, match.getAwayTeam());
+                    insert.setInt(3, match.getHomeScore());
+                    insert.setInt(4, match.getAwayScore());
+                    insert.setString(5, match.getStatus());
+                    insert.setString(6, match.getCompetition());
+                    insert.setString(7, match.getMatchDate().toString());
+                    insert.setString(8, match.getCapturedAt().toString());
+                    insert.addBatch(); // Esto hace que sea mucho más rápido
+                }
+                insert.executeBatch();
+            }
+            System.out.println("Base de datos actualizada: " + matches.size() + " partidos guardados.");
         } catch (SQLException e) {
-            System.err.println("Error al guardar en la base de datos: " + e.getMessage());
+            System.err.println("Error al guardar: " + e.getMessage());
         }
     }
 }
