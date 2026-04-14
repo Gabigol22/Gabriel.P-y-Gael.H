@@ -36,6 +36,7 @@ public class DatabaseMatchSerializer implements MatchSerializer {
 
     @Override
     public void serialize(List<Match> matches) {
+        System.out.println("El Feeder ha enviado: " + matches.size() + " partidos.");
         String deleteSql = "DELETE FROM matches"; // <--- Línea mágica
         String insertSql = """
             INSERT INTO matches
