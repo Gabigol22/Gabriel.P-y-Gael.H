@@ -2,7 +2,7 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballFeeder;
 import es.ulpgc.datos.model.Match;
-import es.ulpgc.datos.serializer.MatchSerializer;
+import es.ulpgc.datos.storer.MatchSerializer;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballDataFeeder;
-import es.ulpgc.datos.serializer.DatabaseMatchSerializer;
+import es.ulpgc.datos.storer.DatabaseMatchSerializer;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

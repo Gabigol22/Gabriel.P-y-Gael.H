@@ -1,4 +1,4 @@
-package es.ulpgc.datos.serializer;
+package es.ulpgc.datos.storer;
 
 import es.ulpgc.datos.model.Match;
 import java.util.List;
