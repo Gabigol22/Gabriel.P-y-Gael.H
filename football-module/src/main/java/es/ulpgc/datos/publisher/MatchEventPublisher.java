@@ -45,7 +45,7 @@ public class MatchEventPublisher {
 
     private String buildEvent(Match match) {
         MatchEvent event = new MatchEvent(
-                Instant.now().toString(),
+                match.getMatchDate().toString() + "Z",
                 SOURCE_ID,
                 match.getHomeTeam(),
                 match.getAwayTeam(),
