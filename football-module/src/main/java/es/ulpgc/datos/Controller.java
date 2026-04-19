@@ -2,6 +2,7 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballFeeder;
 import es.ulpgc.datos.model.Match;
+import es.ulpgc.datos.publisher.MatchEventPublisher;
 import es.ulpgc.datos.storer.MatchSerializer;
 
 import java.util.List;
@@ -13,10 +14,12 @@ public class Controller {
 
     private final FootballFeeder feeder;
     private final MatchSerializer serializer;
+    private final MatchEventPublisher publisher;
 
-    public Controller(FootballFeeder feeder, MatchSerializer serializer) {
+    public Controller(FootballFeeder feeder, MatchSerializer serializer, MatchEventPublisher publisher) {
         this.feeder = feeder;
         this.serializer = serializer;
+        this.publisher = publisher;
     }
 
     public void start() {
@@ -32,5 +35,7 @@ public class Controller {
         matches.forEach(System.out::println);
         System.out.println("Guardando en base de datos...");
         serializer.serialize(matches);
+        System.out.println("Publicando eventos en ActiveMQ...");
+        publisher.publish(matches);
     }
 }
