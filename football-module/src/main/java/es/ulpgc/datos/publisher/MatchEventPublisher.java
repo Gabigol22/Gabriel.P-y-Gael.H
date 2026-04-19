@@ -23,7 +23,7 @@ public class MatchEventPublisher {
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createTopic(TOPIC_NAME);
+            Destination destination = session.createQueue(TOPIC_NAME);
             MessageProducer producer = session.createProducer(destination);
 
             for (Match match : matches) {
