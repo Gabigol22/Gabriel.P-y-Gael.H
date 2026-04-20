@@ -1,11 +1,13 @@
 package es.ulpgc.datos;
 
 import es.ulpgc.datos.listener.EventStoreListener;
+import es.ulpgc.datos.storer.EventStore;
 
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        EventStoreListener listener = new EventStoreListener();
+        EventStore eventStore = new EventStore();
+        EventStoreListener listener = new EventStoreListener(eventStore);
         listener.subscribe("Football");
         listener.subscribe("Weather");
 
@@ -13,7 +15,6 @@ public class Main {
 
         while (true) {
             Thread.sleep(5000);
-            System.out.println("Sigo esperando...");
         }
     }
 }

@@ -2,7 +2,7 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballDataFeeder;
 import es.ulpgc.datos.publisher.MatchEventPublisher;
-import es.ulpgc.datos.storer.DatabaseMatchSerializer;
+import es.ulpgc.datos.storer.DatabaseMatchStore;
 
 public class Main {
 
@@ -17,7 +17,7 @@ public class Main {
 
         Controller controller = new Controller(
                 new FootballDataFeeder(apiUrl),
-                new DatabaseMatchSerializer(databaseName),
+                new DatabaseMatchStore(databaseName),
                 new MatchEventPublisher()
         );
         controller.start();

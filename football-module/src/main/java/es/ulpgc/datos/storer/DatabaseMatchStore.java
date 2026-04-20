@@ -5,11 +5,11 @@ import es.ulpgc.datos.model.Match;
 import java.sql.*;
 import java.util.List;
 
-public class DatabaseMatchSerializer implements MatchSerializer {
+public class DatabaseMatchStore implements MatchStore {
 
     private final String dbUrl;
 
-    public DatabaseMatchSerializer(String databaseName) {
+    public DatabaseMatchStore(String databaseName) {
         this.dbUrl = "jdbc:sqlite:" + databaseName;
         createTableIfNotExists();
     }
