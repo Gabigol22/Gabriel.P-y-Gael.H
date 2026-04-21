@@ -12,31 +12,28 @@ import java.util.List;
 
 public class FootballDataFeeder implements FootballFeeder {
 
-    private static final String API_KEY = "f0f10c49cbc74e138b4f475318abdac1";
     private final String url;
+    private final String apiKey;
     private final MatchMapper mapper = new MatchMapper();
 
-    public FootballDataFeeder(String url) {
+    public FootballDataFeeder(String url, String apiKey) {
         this.url = url;
+        this.apiKey = apiKey;
     }
 
     @Override
     public List<Match> fetchMatches() {
         List<Match> matches = new ArrayList<>();
-
         try {
             String json = fetchJson();
             JsonArray matchesArray = JsonParser.parseString(json)
                     .getAsJsonObject()
                     .getAsJsonArray("matches");
-
             for (JsonElement element : matchesArray)
                 matches.add(mapper.map(element.getAsJsonObject()));
-
         } catch (IOException | InterruptedException e) {
             System.err.println("Error al conectar con la API: " + e.getMessage());
         }
-
         return matches;
     }
 
@@ -46,7 +43,7 @@ public class FootballDataFeeder implements FootballFeeder {
                 .build();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
-                .header("X-Auth-Token", API_KEY)
+                .header("X-Auth-Token", apiKey)
                 .timeout(java.time.Duration.ofSeconds(10))
                 .GET()
                 .build();
