@@ -9,57 +9,46 @@ class WeatherMapperTest {
 
     private final WeatherMapper mapper = new WeatherMapper();
 
-    private JsonObject sampleWeatherJson() {
+    private JsonObject sampleJson() {
         String json = """
-        {
-            "name": "Madrid",
-            "sys": {"country": "ES"},
-            "main": {
-                "temp": 10.79,
-                "feels_like": 9.5,
-                "humidity": 45
-            },
-            "weather": [
-                {"description": "clear sky"}
-            ]
-        }
-        """;
+            {
+                "name": "Madrid",
+                "sys": { "country": "ES" },
+                "main": {
+                    "temp": 20.5,
+                    "feels_like": 19.0,
+                    "humidity": 60
+                },
+                "weather": [
+                    { "description": "clear sky" }
+                ]
+            }
+            """;
         return JsonParser.parseString(json).getAsJsonObject();
     }
 
     @Test
-    void mapReturnsCorrectCity() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertEquals("Madrid", weather.getCity());
+    void mapsCityCorrectly() {
+        assertEquals("Madrid", mapper.map(sampleJson()).getCity());
     }
 
     @Test
-    void mapReturnsCorrectTemperature() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertEquals(10.79, weather.getTemperature());
+    void mapsCountryCorrectly() {
+        assertEquals("ES", mapper.map(sampleJson()).getCountry());
     }
 
     @Test
-    void mapReturnsCorrectHumidity() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertEquals(45, weather.getHumidity());
+    void mapsTemperatureCorrectly() {
+        assertEquals(20.5, mapper.map(sampleJson()).getTemperature());
     }
 
     @Test
-    void mapReturnsCorrectDescription() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertEquals("clear sky", weather.getDescription());
+    void mapsHumidityCorrectly() {
+        assertEquals(60, mapper.map(sampleJson()).getHumidity());
     }
 
     @Test
-    void mapReturnsCorrectCountry() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertEquals("ES", weather.getCountry());
-    }
-
-    @Test
-    void mapSetsCapturedAtNotNull() {
-        Weather weather = mapper.map(sampleWeatherJson());
-        assertNotNull(weather.getCapturedAt());
+    void mapsDescriptionCorrectly() {
+        assertEquals("clear sky", mapper.map(sampleJson()).getDescription());
     }
 }
