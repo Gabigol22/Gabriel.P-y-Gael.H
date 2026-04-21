@@ -12,7 +12,7 @@ class MatchEventPublisherTest {
 
     @Test
     void publishDoesNotThrowWithEmptyList() {
-        MatchEventPublisher publisher = new MatchEventPublisher();
+        MatchEventPublisher publisher = new MatchEventPublisher("tcp://localhost:61616");
         assertDoesNotThrow(() -> publisher.publish(List.of()));
     }
 
