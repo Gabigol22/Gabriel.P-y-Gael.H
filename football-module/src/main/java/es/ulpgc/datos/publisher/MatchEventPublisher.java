@@ -23,8 +23,8 @@ public class MatchEventPublisher {
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(TOPIC_NAME);
-            MessageProducer producer = session.createProducer(destination);
+            Topic topic = session.createTopic(TOPIC_NAME);
+            MessageProducer producer = session.createProducer(topic);
 
             for (Match match : matches) {
                 String json = buildEvent(match);
