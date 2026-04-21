@@ -1,15 +1,16 @@
-package es.ulpgc.datos.serializer;
+package es.ulpgc.datos.storer;
 
 import es.ulpgc.datos.model.Weather;
 
 import java.sql.*;
 import java.util.List;
 
-public class DatabaseWeatherSerializer implements WeatherSerializer {
+public class DatabaseWeatherStore implements WeatherStore {
 
-    private static final String DB_URL = "jdbc:sqlite:weather.db";
+    private final String dbUrl;
 
-    public DatabaseWeatherSerializer() {
+    public DatabaseWeatherStore(String dbPath) {
+        this.dbUrl = "jdbc:sqlite:" + dbPath;
         createTableIfNotExists();
     }
 
@@ -26,7 +27,7 @@ public class DatabaseWeatherSerializer implements WeatherSerializer {
                     captured_at TEXT NOT NULL
                 );
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
         } catch (SQLException e) {
@@ -41,9 +42,8 @@ public class DatabaseWeatherSerializer implements WeatherSerializer {
                     (city, country, temperature, feels_like, humidity, description, captured_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             for (Weather weather : weatherList) {
                 pstmt.setString(1, weather.getCity());
                 pstmt.setString(2, weather.getCountry());
@@ -54,9 +54,7 @@ public class DatabaseWeatherSerializer implements WeatherSerializer {
                 pstmt.setString(7, weather.getCapturedAt().toString());
                 pstmt.executeUpdate();
             }
-
             System.out.println("Guardados " + weatherList.size() + " registros en la base de datos.");
-
         } catch (SQLException e) {
             System.err.println("Error al guardar en la base de datos: " + e.getMessage());
         }
