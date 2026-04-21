@@ -2,16 +2,16 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.WeatherFeeder;
 import es.ulpgc.datos.model.Weather;
-import es.ulpgc.datos.serializer.WeatherSerializer;
+import es.ulpgc.datos.storer.WeatherStore;
 
 import java.util.List;
 
 public class Controller {
 
     private final WeatherFeeder feeder;
-    private final WeatherSerializer serializer;
+    private final WeatherStore serializer;
 
-    public Controller(WeatherFeeder feeder, WeatherSerializer serializer) {
+    public Controller(WeatherFeeder feeder, WeatherStore serializer) {
         this.feeder = feeder;
         this.serializer = serializer;
     }
