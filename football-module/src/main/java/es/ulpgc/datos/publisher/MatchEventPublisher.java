@@ -5,26 +5,29 @@ import es.ulpgc.datos.model.Match;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.time.Instant;
 import java.util.List;
 
 public class MatchEventPublisher {
 
-    private static final String BROKER_URL = "tcp://localhost:61616";
     private static final String TOPIC_NAME = "Football";
     private static final String SOURCE_ID = "football-feeder";
 
+    private final String brokerUrl;
     private final Gson gson = new Gson();
+
+    public MatchEventPublisher(String brokerUrl) {
+        this.brokerUrl = brokerUrl;
+    }
 
     public void publish(List<Match> matches) {
         try {
-            ConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
+            ConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
             Connection connection = factory.createConnection();
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Topic topic = session.createTopic(TOPIC_NAME);
-            MessageProducer producer = session.createProducer(topic);
+            Destination destination = session.createTopic(TOPIC_NAME);
+            MessageProducer producer = session.createProducer(destination);
 
             for (Match match : matches) {
                 String json = buildEvent(match);

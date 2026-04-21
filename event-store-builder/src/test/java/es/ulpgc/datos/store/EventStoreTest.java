@@ -1,4 +1,4 @@
-package es.ulpgc.datos.storer;
+package es.ulpgc.datos.store;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;

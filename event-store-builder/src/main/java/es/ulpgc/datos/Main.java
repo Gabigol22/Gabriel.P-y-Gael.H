@@ -1,7 +1,7 @@
 package es.ulpgc.datos;
 
 import es.ulpgc.datos.listener.EventStoreListener;
-import es.ulpgc.datos.storer.EventStore;
+import es.ulpgc.datos.store.EventStore;
 
 public class Main {
 

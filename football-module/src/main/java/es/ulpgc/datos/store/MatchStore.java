@@ -1,4 +1,4 @@
-package es.ulpgc.datos.storer;
+package es.ulpgc.datos.store;
 
 import es.ulpgc.datos.model.Match;
 import java.util.List;

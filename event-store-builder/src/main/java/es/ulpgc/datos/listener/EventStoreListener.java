@@ -2,9 +2,8 @@ package es.ulpgc.datos.listener;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import es.ulpgc.datos.storer.EventStore;
+import es.ulpgc.datos.store.EventStore;
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import javax.jms.*;
 
 public class EventStoreListener {
@@ -16,33 +15,37 @@ public class EventStoreListener {
         this.eventStore = eventStore;
     }
 
-    public void subscribe(String queueName) {
+    public void subscribe(String topicName) {
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
                     ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
                     Connection connection = factory.createConnection();
+
+                    connection.setClientID("EventStoreBuilder_" + topicName);
                     connection.start();
 
                     Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    Queue queue = session.createQueue(queueName);
-                    MessageConsumer consumer = session.createConsumer(queue);
+                    Topic topic = session.createTopic(topicName);
 
-                    System.out.println("Suscrito a la queue: " + queueName);
+                    MessageConsumer consumer = session.createDurableSubscriber(topic, "sub-" + topicName);
+
+                    System.out.println("Suscrito de forma DURABLE al topic: " + topicName);
 
                     while (true) {
                         Message message = consumer.receive(1000);
                         if (message instanceof TextMessage textMessage) {
                             String json = textMessage.getText();
                             JsonObject event = JsonParser.parseString(json).getAsJsonObject();
+
                             String ts = event.get("ts").getAsString();
                             String ss = event.get("ss").getAsString();
-                            eventStore.store(queueName, ss, ts, json);
+                            eventStore.store(topicName, ss, ts, json);
                         }
                     }
 
                 } catch (JMSException e) {
-                    System.err.println("Error en " + queueName + ": " + e.getMessage());
+                    System.err.println("Error en " + topicName + ": " + e.getMessage());
                     System.out.println("Reconectando en 5 segundos...");
                     try {
                         Thread.sleep(5000);
