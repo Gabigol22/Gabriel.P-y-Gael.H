@@ -13,7 +13,7 @@ class MatchEventStoreTest {
     @Test
     void publishDoesNotThrowWithEmptyList() {
         MatchEventStore publisher = new MatchEventStore("tcp://localhost:61616");
-        assertDoesNotThrow(() -> publisher.publish(List.of()));
+        assertDoesNotThrow(() -> publisher.store(List.of()));
     }
 
     @Test
@@ -22,6 +22,6 @@ class MatchEventStoreTest {
         Match match = new Match("Real Madrid CF", "FC Barcelona", 3, 2,
                 "FINISHED", "Primera Division", LocalDateTime.of(2026, 3, 22, 20, 0));
 
-        assertDoesNotThrow(() -> publisher.publish(List.of(match)));
+        assertDoesNotThrow(() -> publisher.store(List.of(match)));
     }
 }

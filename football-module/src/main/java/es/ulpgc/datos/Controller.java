@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
 
     private final FootballFeeder feeder;
-    // He puesto 'matchStore' y 'eventStore' para que no se llamen igual
     private final MatchStore matchStore;
     private final MatchEventStore eventStore;
 
