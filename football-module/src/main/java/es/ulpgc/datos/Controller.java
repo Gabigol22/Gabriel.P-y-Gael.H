@@ -13,13 +13,14 @@ import java.util.concurrent.TimeUnit;
 public class Controller {
 
     private final FootballFeeder feeder;
-    private final MatchStore store;
-    private final MatchEventStore publisher;
+    // He puesto 'matchStore' y 'eventStore' para que no se llamen igual
+    private final MatchStore matchStore;
+    private final MatchEventStore eventStore;
 
-    public Controller(FootballFeeder feeder, MatchStore store, MatchEventStore publisher) {
+    public Controller(FootballFeeder feeder, MatchStore matchStore, MatchEventStore eventStore) {
         this.feeder = feeder;
-        this.store = store;
-        this.publisher = publisher;
+        this.matchStore = matchStore;
+        this.eventStore = eventStore;
     }
 
     public void start() {
@@ -32,10 +33,14 @@ public class Controller {
         System.out.println("Obteniendo partidos de LaLiga...");
         List<Match> matches = feeder.fetchMatches();
         System.out.println("Partidos obtenidos: " + matches.size());
+
         matches.forEach(System.out::println);
+
+        // Aquí usamos los métodos 'store' que es como quieres llamarlos ahora
         System.out.println("Guardando en base de datos...");
-        store.serialize(matches);
+        matchStore.store(matches);
+
         System.out.println("Publicando eventos en ActiveMQ...");
-        publisher.publish(matches);
+        eventStore.store(matches);
     }
 }

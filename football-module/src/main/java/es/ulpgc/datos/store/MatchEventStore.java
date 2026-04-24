@@ -19,7 +19,7 @@ public class MatchEventStore {
         this.brokerUrl = brokerUrl;
     }
 
-    public void publish(List<Match> matches) {
+    public void store(List<Match> matches) {
         try {
             ConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
             Connection connection = factory.createConnection();

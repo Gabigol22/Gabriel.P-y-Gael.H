@@ -37,7 +37,7 @@ public class DatabaseMatchStore implements MatchStore {
     }
 
     @Override
-    public void serialize(List<Match> matches) {
+    public void store(List<Match> matches) {
         String checkSql = """
                 SELECT COUNT(*) FROM matches
                 WHERE home_team = ? AND away_team = ? AND match_date = ?
