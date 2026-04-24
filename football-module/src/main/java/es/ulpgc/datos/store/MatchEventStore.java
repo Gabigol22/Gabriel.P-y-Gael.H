@@ -1,4 +1,4 @@
-package es.ulpgc.datos.publisher;
+package es.ulpgc.datos.store;
 
 import com.google.gson.Gson;
 import es.ulpgc.datos.model.Match;
@@ -7,7 +7,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;
 import java.util.List;
 
-public class MatchEventPublisher {
+public class MatchEventStore {
 
     private static final String TOPIC_NAME = "Football";
     private static final String SOURCE_ID = "football-feeder";
@@ -15,7 +15,7 @@ public class MatchEventPublisher {
     private final String brokerUrl;
     private final Gson gson = new Gson();
 
-    public MatchEventPublisher(String brokerUrl) {
+    public MatchEventStore(String brokerUrl) {
         this.brokerUrl = brokerUrl;
     }
 

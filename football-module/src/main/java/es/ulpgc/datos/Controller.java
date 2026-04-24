@@ -2,7 +2,7 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballFeeder;
 import es.ulpgc.datos.model.Match;
-import es.ulpgc.datos.publisher.MatchEventPublisher;
+import es.ulpgc.datos.store.MatchEventStore;
 import es.ulpgc.datos.store.MatchStore;
 
 import java.util.List;
@@ -14,9 +14,9 @@ public class Controller {
 
     private final FootballFeeder feeder;
     private final MatchStore store;
-    private final MatchEventPublisher publisher;
+    private final MatchEventStore publisher;
 
-    public Controller(FootballFeeder feeder, MatchStore store, MatchEventPublisher publisher) {
+    public Controller(FootballFeeder feeder, MatchStore store, MatchEventStore publisher) {
         this.feeder = feeder;
         this.store = store;
         this.publisher = publisher;

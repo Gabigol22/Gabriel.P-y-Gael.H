@@ -1,4 +1,4 @@
-package es.ulpgc.datos.publisher;
+package es.ulpgc.datos.store;
 
 import es.ulpgc.datos.model.Match;
 import org.junit.jupiter.api.Test;
@@ -8,17 +8,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MatchEventPublisherTest {
+class MatchEventStoreTest {
 
     @Test
     void publishDoesNotThrowWithEmptyList() {
-        MatchEventPublisher publisher = new MatchEventPublisher("tcp://localhost:61616");
+        MatchEventStore publisher = new MatchEventStore("tcp://localhost:61616");
         assertDoesNotThrow(() -> publisher.publish(List.of()));
     }
 
     @Test
     void publishDoesNotThrowWithValidMatches() {
-        MatchEventPublisher publisher = new MatchEventPublisher();
+        MatchEventStore publisher = new MatchEventStore("tcp://localhost:61616");
         Match match = new Match("Real Madrid CF", "FC Barcelona", 3, 2,
                 "FINISHED", "Primera Division", LocalDateTime.of(2026, 3, 22, 20, 0));
 
