@@ -1,4 +1,4 @@
-package es.ulpgc.datos.storer;
+package es.ulpgc.datos.store;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -9,7 +9,7 @@ import java.time.temporal.ChronoField;
 
 public class EventStore {
 
-    private static final String BASE_DIR = "eventstore";
+    private final String baseDir;
     private static final DateTimeFormatter OUTPUT = DateTimeFormatter.ofPattern("yyyyMMdd")
             .withZone(ZoneOffset.UTC);
     private static final DateTimeFormatter INPUT = new DateTimeFormatterBuilder()
@@ -20,10 +20,18 @@ public class EventStore {
             .toFormatter()
             .withZone(ZoneOffset.UTC);
 
+    public EventStore() {
+        this.baseDir = "eventstore";
+    }
+
+    public EventStore(String baseDir) {
+        this.baseDir = baseDir;
+    }
+
     public void store(String topic, String ss, String ts, String json) {
         try {
             String date = OUTPUT.format(INPUT.parse(ts));
-            Path dir = Paths.get(BASE_DIR, topic, ss);
+            Path dir = Paths.get(baseDir, topic, ss);
             Files.createDirectories(dir);
 
             Path file = dir.resolve(date + ".events");

@@ -1,29 +1,32 @@
-package es.ulpgc.datos.publisher;
+package es.ulpgc.datos.store;
 
 import com.google.gson.Gson;
 import es.ulpgc.datos.model.Match;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import javax.jms.*;
-import java.time.Instant;
 import java.util.List;
 
-public class MatchEventPublisher {
+public class MatchEventStore {
 
-    private static final String BROKER_URL = "tcp://localhost:61616";
     private static final String TOPIC_NAME = "Football";
     private static final String SOURCE_ID = "football-feeder";
 
+    private final String brokerUrl;
     private final Gson gson = new Gson();
 
-    public void publish(List<Match> matches) {
+    public MatchEventStore(String brokerUrl) {
+        this.brokerUrl = brokerUrl;
+    }
+
+    public void store(List<Match> matches) {
         try {
-            ConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
+            ConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
             Connection connection = factory.createConnection();
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = session.createQueue(TOPIC_NAME);
+            Destination destination = session.createTopic(TOPIC_NAME);
             MessageProducer producer = session.createProducer(destination);
 
             for (Match match : matches) {
