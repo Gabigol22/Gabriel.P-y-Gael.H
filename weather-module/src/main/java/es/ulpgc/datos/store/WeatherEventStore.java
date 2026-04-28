@@ -1,4 +1,4 @@
-package es.ulpgc.datos.feeder;
+package es.ulpgc.datos.store;
 
 import com.google.gson.Gson;
 import es.ulpgc.datos.model.WeatherEvent;
@@ -6,7 +6,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 
 import jakarta.jms.*;
 
-public class WeatherEventPublisher {
+public class WeatherEventStore {
 
     private static final String BROKER_URL = "tcp://localhost:61616";
     private static final String TOPIC_NAME = "Weather";

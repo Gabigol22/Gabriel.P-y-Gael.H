@@ -1,7 +1,7 @@
 package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.OpenWeatherMapFeeder;
-import es.ulpgc.datos.storer.DatabaseWeatherStore;
+import es.ulpgc.datos.store.DatabaseWeatherStore;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

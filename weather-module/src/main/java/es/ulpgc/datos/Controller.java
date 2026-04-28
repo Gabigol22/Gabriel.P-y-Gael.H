@@ -1,10 +1,10 @@
 package es.ulpgc.datos;
 
-import es.ulpgc.datos.feeder.WeatherEventPublisher;
+import es.ulpgc.datos.store.WeatherEventStore;
 import es.ulpgc.datos.feeder.WeatherFeeder;
 import es.ulpgc.datos.model.Weather;
 import es.ulpgc.datos.model.WeatherEvent;
-import es.ulpgc.datos.storer.WeatherStore;
+import es.ulpgc.datos.store.WeatherStore;
 
 import java.time.Instant;
 import java.util.List;
@@ -13,12 +13,12 @@ public class Controller {
 
     private final WeatherFeeder feeder;
     private final WeatherStore serializer;
-    private final WeatherEventPublisher publisher;
+    private final WeatherEventStore publisher;
 
     public Controller(WeatherFeeder feeder, WeatherStore serializer) {
         this.feeder = feeder;
         this.serializer = serializer;
-        this.publisher = new WeatherEventPublisher();
+        this.publisher = new WeatherEventStore();
     }
 
     public void start() {
