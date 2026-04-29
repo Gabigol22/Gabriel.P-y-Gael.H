@@ -9,8 +9,8 @@ public class DatabaseWeatherStore implements WeatherStore {
 
     private final String dbUrl;
 
-    public DatabaseWeatherStore(String dbPath) {
-        this.dbUrl = "jdbc:sqlite:" + dbPath;
+    public DatabaseWeatherStore(String databaseName) {
+        this.dbUrl = "jdbc:sqlite:" + databaseName;
         createTableIfNotExists();
     }
 
@@ -36,7 +36,7 @@ public class DatabaseWeatherStore implements WeatherStore {
     }
 
     @Override
-    public void serialize(List<Weather> weatherList) {
+    public void store(List<Weather> weatherList) {
         String sql = """
                 INSERT INTO weather
                     (city, country, temperature, feels_like, humidity, description, captured_at)
