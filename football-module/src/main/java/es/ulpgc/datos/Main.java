@@ -1,8 +1,9 @@
 package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballDataFeeder;
-import es.ulpgc.datos.store.MatchEventStore;
+import es.ulpgc.datos.store.CompositeMatchStore;
 import es.ulpgc.datos.store.DatabaseMatchStore;
+import es.ulpgc.datos.store.MatchEventStore;
 
 public class Main {
 
@@ -19,8 +20,10 @@ public class Main {
 
         Controller controller = new Controller(
                 new FootballDataFeeder(apiUrl, apiKey),
-                new DatabaseMatchStore(databaseName),
-                new MatchEventStore(brokerUrl)
+                new CompositeMatchStore(
+                        new DatabaseMatchStore(databaseName),
+                        new MatchEventStore(brokerUrl)
+                )
         );
         controller.start();
     }

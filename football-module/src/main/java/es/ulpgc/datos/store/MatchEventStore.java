@@ -7,7 +7,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import javax.jms.*;
 import java.util.List;
 
-public class MatchEventStore {
+public class MatchEventStore implements MatchStore{
 
     private static final String TOPIC_NAME = "Football";
     private static final String SOURCE_ID = "football-feeder";
