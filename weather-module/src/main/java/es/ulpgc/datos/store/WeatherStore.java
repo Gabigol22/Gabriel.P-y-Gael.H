@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface WeatherStore {
 
-    void serialize(List<Weather> weatherList);
+    void store(List<Weather> weatherList);
 
 }
