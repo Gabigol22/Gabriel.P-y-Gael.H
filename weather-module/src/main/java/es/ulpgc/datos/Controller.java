@@ -1,49 +1,35 @@
 package es.ulpgc.datos;
 
-import es.ulpgc.datos.feeder.WeatherEventPublisher;
 import es.ulpgc.datos.feeder.WeatherFeeder;
 import es.ulpgc.datos.model.Weather;
-import es.ulpgc.datos.model.WeatherEvent;
-import es.ulpgc.datos.storer.WeatherStore;
+import es.ulpgc.datos.store.WeatherStore;
 
-import java.time.Instant;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class Controller {
 
     private final WeatherFeeder feeder;
-    private final WeatherStore serializer;
-    private final WeatherEventPublisher publisher;
+    private final WeatherStore store;
 
-    public Controller(WeatherFeeder feeder, WeatherStore serializer) {
+    public Controller(WeatherFeeder feeder, WeatherStore store) {
         this.feeder = feeder;
-        this.serializer = serializer;
-        this.publisher = new WeatherEventPublisher();
+        this.store = store;
     }
 
     public void start() {
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        scheduler.scheduleAtFixedRate(this::fetch, 0, 1, TimeUnit.HOURS);
+        System.out.println("Scheduler iniciado. Capturando datos cada hora...");
+    }
+
+    private void fetch() {
         System.out.println("Obteniendo datos meteorológicos...");
         List<Weather> weatherList = feeder.fetchWeather();
-
         System.out.println("Ciudades obtenidas: " + weatherList.size());
         weatherList.forEach(System.out::println);
-
-        System.out.println("Guardando en base de datos...");
-        serializer.serialize(weatherList);
-
-        System.out.println("Publicando eventos en ActiveMQ...");
-        for (Weather weather : weatherList) {
-            WeatherEvent event = new WeatherEvent(
-                    Instant.now().toString(),
-                    "OpenWeatherMap",
-                    weather.getCity(),
-                    weather.getCountry(),
-                    weather.getTemperature(),
-                    weather.getFeelsLike(),
-                    weather.getHumidity(),
-                    weather.getDescription()
-            );
-            publisher.publish(event);
-        }
+        store.store(weatherList);
     }
 }

@@ -2,7 +2,7 @@ package es.ulpgc.datos;
 
 import es.ulpgc.datos.feeder.FootballDataFeeder;
 import es.ulpgc.datos.publisher.MatchEventPublisher;
-import es.ulpgc.datos.storer.DatabaseMatchSerializer;
+import es.ulpgc.datos.store.DatabaseMatchSerializer;
 
 public class Main {
 

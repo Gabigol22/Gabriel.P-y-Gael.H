@@ -1,10 +1,10 @@
-package es.ulpgc.datos.storer;
+package es.ulpgc.datos.store;
 
 import es.ulpgc.datos.model.Weather;
 import java.util.List;
 
 public interface WeatherStore {
 
-    void serialize(List<Weather> weatherList);
+    void store(List<Weather> weatherList);
 
 }

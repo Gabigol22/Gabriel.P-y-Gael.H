@@ -3,7 +3,7 @@ package es.ulpgc.datos;
 import es.ulpgc.datos.feeder.FootballFeeder;
 import es.ulpgc.datos.model.Match;
 import es.ulpgc.datos.publisher.MatchEventPublisher;
-import es.ulpgc.datos.storer.MatchSerializer;
+import es.ulpgc.datos.store.MatchSerializer;
 
 import java.util.List;
 import java.util.concurrent.Executors;

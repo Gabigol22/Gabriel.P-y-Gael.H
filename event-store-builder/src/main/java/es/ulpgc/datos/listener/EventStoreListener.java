@@ -2,7 +2,7 @@ package es.ulpgc.datos.listener;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import es.ulpgc.datos.storer.EventStore;
+import es.ulpgc.datos.store.EventStore;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 import jakarta.jms.*;
