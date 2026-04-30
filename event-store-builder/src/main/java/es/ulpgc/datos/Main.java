@@ -6,14 +6,15 @@ import es.ulpgc.datos.store.EventStore;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException {
-        if (args.length < 1) {
-            System.out.println("Uso: Main <broker-url>");
+        if (args.length < 2) {
+            System.out.println("Uso: Main <broker-url> <eventstore-path>");
             return;
         }
 
         String brokerUrl = args[0];
+        String eventStorePath = args[1];
 
-        EventStore eventStore = new EventStore();
+        EventStore eventStore = new EventStore(eventStorePath);
         EventStoreListener listener = new EventStoreListener(eventStore, brokerUrl);
         listener.subscribe("Football");
         listener.subscribe("Weather");
