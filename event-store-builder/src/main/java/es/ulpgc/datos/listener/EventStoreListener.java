@@ -8,26 +8,26 @@ import javax.jms.*;
 
 public class EventStoreListener {
 
-    private static final String BROKER_URL = "failover:(tcp://localhost:61616)?maxReconnectAttempts=10&initialReconnectDelay=1000&maxReconnectDelay=5000";
+    private static final String CLIENT_ID = "EventStoreBuilder_" + System.currentTimeMillis();
+    private final String brokerUrl;
     private final EventStore eventStore;
 
-    public EventStoreListener(EventStore eventStore) {
+    public EventStoreListener(EventStore eventStore, String brokerUrl) {
         this.eventStore = eventStore;
+        this.brokerUrl = "failover:(" + brokerUrl + ")?maxReconnectAttempts=10&initialReconnectDelay=1000&maxReconnectDelay=5000";
     }
 
     public void subscribe(String topicName) {
         Thread thread = new Thread(() -> {
             while (true) {
                 try {
-                    ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(BROKER_URL);
+                    ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
                     Connection connection = factory.createConnection();
-
-                    connection.setClientID("EventStoreBuilder_" + topicName);
+                    connection.setClientID(CLIENT_ID + "_" + topicName);
                     connection.start();
 
                     Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                     Topic topic = session.createTopic(topicName);
-
                     MessageConsumer consumer = session.createDurableSubscriber(topic, "sub-" + topicName);
 
                     System.out.println("Suscrito de forma DURABLE al topic: " + topicName);
@@ -37,7 +37,6 @@ public class EventStoreListener {
                         if (message instanceof TextMessage textMessage) {
                             String json = textMessage.getText();
                             JsonObject event = JsonParser.parseString(json).getAsJsonObject();
-
                             String ts = event.get("ts").getAsString();
                             String ss = event.get("ss").getAsString();
                             eventStore.store(topicName, ss, ts, json);
