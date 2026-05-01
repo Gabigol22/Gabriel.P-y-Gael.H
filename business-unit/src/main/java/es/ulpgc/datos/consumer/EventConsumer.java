@@ -66,7 +66,11 @@ public class EventConsumer {
             String city = getCityForTeam(homeTeam);
             datamart.insertMatchWeather(homeTeam, awayTeam, matchDate, city, 0, 0, "N/A", ts);
         } else if (topic.equals("Weather")) {
-            System.out.println("Evento de tiempo recibido: " + event.get("city").getAsString());
+            String city = event.get("city").getAsString();
+            double temperature = event.get("temperature").getAsDouble();
+            int humidity = event.get("humidity").getAsInt();
+            String description = event.get("description").getAsString();
+            datamart.updateWeather(city, temperature, humidity, description);
         }
     }
 

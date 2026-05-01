@@ -36,24 +36,52 @@ public class Datamart {
     public void insertMatchWeather(String homeTeam, String awayTeam, String matchDate,
                                    String city, double temperature, int humidity,
                                    String description, String capturedAt) {
-        String sql = """
+        String checkSql = "SELECT COUNT(*) FROM match_weather WHERE home_team = ? AND away_team = ? AND match_date = ?";
+        String insertSql = """
                 INSERT INTO match_weather
                     (home_team, away_team, match_date, city, temperature, humidity, description, captured_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, homeTeam);
-            pstmt.setString(2, awayTeam);
-            pstmt.setString(3, matchDate);
-            pstmt.setString(4, city);
-            pstmt.setDouble(5, temperature);
-            pstmt.setInt(6, humidity);
-            pstmt.setString(7, description);
-            pstmt.setString(8, capturedAt);
-            pstmt.executeUpdate();
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            try (PreparedStatement check = conn.prepareStatement(checkSql)) {
+                check.setString(1, homeTeam);
+                check.setString(2, awayTeam);
+                check.setString(3, matchDate);
+                ResultSet rs = check.executeQuery();
+                if (rs.next() && rs.getInt(1) > 0) return;
+            }
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                pstmt.setString(1, homeTeam);
+                pstmt.setString(2, awayTeam);
+                pstmt.setString(3, matchDate);
+                pstmt.setString(4, city);
+                pstmt.setDouble(5, temperature);
+                pstmt.setInt(6, humidity);
+                pstmt.setString(7, description);
+                pstmt.setString(8, capturedAt);
+                pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             System.err.println("Error al insertar en datamart: " + e.getMessage());
+        }
+    }
+
+    public void updateWeather(String city, double temperature, int humidity, String description) {
+        String sql = """
+                UPDATE match_weather
+                SET temperature = ?, humidity = ?, description = ?
+                WHERE city = ? AND (temperature = 0 OR description = 'N/A')
+                """;
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(1, temperature);
+            pstmt.setInt(2, humidity);
+            pstmt.setString(3, description);
+            pstmt.setString(4, city);
+            pstmt.executeUpdate();
+            System.out.println("Tiempo actualizado para: " + city);
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar tiempo: " + e.getMessage());
         }
     }
 
