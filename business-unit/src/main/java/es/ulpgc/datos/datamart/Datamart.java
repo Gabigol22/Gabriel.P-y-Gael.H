@@ -16,6 +16,8 @@ public class Datamart {
                     id          INTEGER PRIMARY KEY AUTOINCREMENT,
                     home_team   TEXT NOT NULL,
                     away_team   TEXT NOT NULL,
+                    home_score  INTEGER,
+                    away_score  INTEGER,
                     match_date  TEXT,
                     city        TEXT,
                     temperature REAL,
@@ -33,14 +35,14 @@ public class Datamart {
         }
     }
 
-    public void insertMatchWeather(String homeTeam, String awayTeam, String matchDate,
-                                   String city, double temperature, int humidity,
+    public void insertMatchWeather(String homeTeam, String awayTeam, int homeScore, int awayScore,
+                                   String matchDate, String city, double temperature, int humidity,
                                    String description, String capturedAt) {
         String checkSql = "SELECT COUNT(*) FROM match_weather WHERE home_team = ? AND away_team = ? AND match_date = ?";
         String insertSql = """
                 INSERT INTO match_weather
-                    (home_team, away_team, match_date, city, temperature, humidity, description, captured_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    (home_team, away_team, home_score, away_score, match_date, city, temperature, humidity, description, captured_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             try (PreparedStatement check = conn.prepareStatement(checkSql)) {
@@ -53,12 +55,14 @@ public class Datamart {
             try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
                 pstmt.setString(1, homeTeam);
                 pstmt.setString(2, awayTeam);
-                pstmt.setString(3, matchDate);
-                pstmt.setString(4, city);
-                pstmt.setDouble(5, temperature);
-                pstmt.setInt(6, humidity);
-                pstmt.setString(7, description);
-                pstmt.setString(8, capturedAt);
+                pstmt.setInt(3, homeScore);
+                pstmt.setInt(4, awayScore);
+                pstmt.setString(5, matchDate);
+                pstmt.setString(6, city);
+                pstmt.setDouble(7, temperature);
+                pstmt.setInt(8, humidity);
+                pstmt.setString(9, description);
+                pstmt.setString(10, capturedAt);
                 pstmt.executeUpdate();
             }
         } catch (SQLException e) {
@@ -91,6 +95,30 @@ public class Datamart {
                 "SELECT * FROM match_weather WHERE city = ? ORDER BY match_date DESC");
         pstmt.setString(1, city);
         return pstmt.executeQuery();
+    }
+
+    public ResultSet queryByTeam(String team) throws SQLException {
+        Connection conn = DriverManager.getConnection(DB_URL);
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT * FROM match_weather WHERE home_team = ? OR away_team = ? ORDER BY match_date DESC");
+        pstmt.setString(1, team);
+        pstmt.setString(2, team);
+        return pstmt.executeQuery();
+    }
+
+    public ResultSet queryWeatherByCity(String city) throws SQLException {
+        Connection conn = DriverManager.getConnection(DB_URL);
+        PreparedStatement pstmt = conn.prepareStatement(
+                "SELECT DISTINCT city, temperature, humidity, description FROM match_weather WHERE city = ? LIMIT 1");
+        pstmt.setString(1, city);
+        return pstmt.executeQuery();
+    }
+
+    public ResultSet queryRainyMatches() throws SQLException {
+        Connection conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        return stmt.executeQuery(
+                "SELECT * FROM match_weather WHERE description LIKE '%rain%' OR description LIKE '%drizzle%' ORDER BY match_date DESC");
     }
 
     public ResultSet queryAll() throws SQLException {

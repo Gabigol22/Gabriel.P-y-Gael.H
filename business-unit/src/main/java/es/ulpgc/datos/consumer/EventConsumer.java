@@ -64,7 +64,9 @@ public class EventConsumer {
             String matchDate = event.get("matchDate").getAsString();
             String ts = event.get("ts").getAsString();
             String city = getCityForTeam(homeTeam);
-            datamart.insertMatchWeather(homeTeam, awayTeam, matchDate, city, 0, 0, "N/A", ts);
+            int homeScore = event.get("homeScore").getAsInt();
+            int awayScore = event.get("awayScore").getAsInt();
+            datamart.insertMatchWeather(homeTeam, awayTeam, homeScore, awayScore, matchDate, city, 0, 0, "N/A", ts);
         } else if (topic.equals("Weather")) {
             String city = event.get("city").getAsString();
             double temperature = event.get("temperature").getAsDouble();

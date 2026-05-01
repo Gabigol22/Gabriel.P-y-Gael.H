@@ -20,40 +20,56 @@ public class RestApi {
         Javalin app = Javalin.create().start(port);
 
         app.get("/partidos", ctx -> {
-            JsonArray result = new JsonArray();
-            ResultSet rs = datamart.queryAll();
-            while (rs.next()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("homeTeam", rs.getString("home_team"));
-                obj.addProperty("awayTeam", rs.getString("away_team"));
-                obj.addProperty("matchDate", rs.getString("match_date"));
-                obj.addProperty("city", rs.getString("city"));
-                obj.addProperty("temperature", rs.getDouble("temperature"));
-                obj.addProperty("humidity", rs.getInt("humidity"));
-                obj.addProperty("description", rs.getString("description"));
-                result.add(obj);
-            }
-            ctx.json(result.toString());
+            ctx.json(resultSetToJson(datamart.queryAll()).toString());
         });
 
         app.get("/partidos/{city}", ctx -> {
             String city = ctx.pathParam("city");
-            JsonArray result = new JsonArray();
-            ResultSet rs = datamart.queryByCity(city);
-            while (rs.next()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty("homeTeam", rs.getString("home_team"));
-                obj.addProperty("awayTeam", rs.getString("away_team"));
-                obj.addProperty("matchDate", rs.getString("match_date"));
+            ctx.json(resultSetToJson(datamart.queryByCity(city)).toString());
+        });
+
+        app.get("/partidos/equipo/{team}", ctx -> {
+            String team = ctx.pathParam("team");
+            ctx.json(resultSetToJson(datamart.queryByTeam(team)).toString());
+        });
+
+        app.get("/tiempo/{city}", ctx -> {
+            String city = ctx.pathParam("city");
+            ResultSet rs = datamart.queryWeatherByCity(city);
+            JsonObject obj = new JsonObject();
+            if (rs.next()) {
                 obj.addProperty("city", rs.getString("city"));
                 obj.addProperty("temperature", rs.getDouble("temperature"));
                 obj.addProperty("humidity", rs.getInt("humidity"));
                 obj.addProperty("description", rs.getString("description"));
-                result.add(obj);
+            } else {
+                obj.addProperty("message", "No hay datos para " + city);
             }
-            ctx.json(result.toString());
+            ctx.json(obj.toString());
+        });
+
+        app.get("/alertas/lluvia", ctx -> {
+            ctx.json(resultSetToJson(datamart.queryRainyMatches()).toString());
         });
 
         System.out.println("API REST iniciada en http://localhost:" + port);
+    }
+
+    private JsonArray resultSetToJson(ResultSet rs) throws SQLException {
+        JsonArray result = new JsonArray();
+        while (rs.next()) {
+            JsonObject obj = new JsonObject();
+            obj.addProperty("homeTeam", rs.getString("home_team"));
+            obj.addProperty("awayTeam", rs.getString("away_team"));
+            obj.addProperty("homeScore", rs.getInt("home_score"));
+            obj.addProperty("awayScore", rs.getInt("away_score"));
+            obj.addProperty("matchDate", rs.getString("match_date"));
+            obj.addProperty("city", rs.getString("city"));
+            obj.addProperty("temperature", rs.getDouble("temperature"));
+            obj.addProperty("humidity", rs.getInt("humidity"));
+            obj.addProperty("description", rs.getString("description"));
+            result.add(obj);
+        }
+        return result;
     }
 }

@@ -47,7 +47,9 @@ public class HistoryLoader {
                     String matchDate = event.get("matchDate").getAsString();
                     String ts = event.get("ts").getAsString();
                     String city = getCityForTeam(homeTeam);
-                    datamart.insertMatchWeather(homeTeam, awayTeam, matchDate, city, 0, 0, "N/A", ts);
+                    int homeScore = event.get("homeScore").getAsInt();
+                    int awayScore = event.get("awayScore").getAsInt();
+                    datamart.insertMatchWeather(homeTeam, awayTeam, homeScore, awayScore, matchDate, city, 0, 0, "N/A", ts);
                 }
             });
             System.out.println("Histórico cargado: " + file.getFileName());
