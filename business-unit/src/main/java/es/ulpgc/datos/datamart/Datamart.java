@@ -27,7 +27,7 @@ public class Datamart {
                     captured_at TEXT
                 );
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Datamart inicializado.");
@@ -45,7 +45,7 @@ public class Datamart {
                     (home_team, away_team, home_score, away_score, match_date, city, temperature, humidity, description, captured_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+        try (Connection conn = DriverManager.getConnection(dbUrl)) {
             try (PreparedStatement check = conn.prepareStatement(checkSql)) {
                 check.setString(1, homeTeam);
                 check.setString(2, awayTeam);
@@ -77,7 +77,7 @@ public class Datamart {
                 SET temperature = ?, humidity = ?, description = ?
                 WHERE city = ? AND (temperature = 0 OR description = 'N/A')
                 """;
-        try (Connection conn = DriverManager.getConnection(DB_URL);
+        try (Connection conn = DriverManager.getConnection(dbUrl);
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, temperature);
             pstmt.setInt(2, humidity);
@@ -91,7 +91,7 @@ public class Datamart {
     }
 
     public ResultSet queryByCity(String city) throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(dbUrl);
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT * FROM match_weather WHERE city = ? ORDER BY match_date DESC");
         pstmt.setString(1, city);
@@ -99,7 +99,7 @@ public class Datamart {
     }
 
     public ResultSet queryByTeam(String team) throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(dbUrl);
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT * FROM match_weather WHERE home_team = ? OR away_team = ? ORDER BY match_date DESC");
         pstmt.setString(1, team);
@@ -108,7 +108,7 @@ public class Datamart {
     }
 
     public ResultSet queryWeatherByCity(String city) throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(dbUrl);
         PreparedStatement pstmt = conn.prepareStatement(
                 "SELECT DISTINCT city, temperature, humidity, description FROM match_weather WHERE city = ? LIMIT 1");
         pstmt.setString(1, city);
@@ -116,14 +116,14 @@ public class Datamart {
     }
 
     public ResultSet queryRainyMatches() throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(dbUrl);
         Statement stmt = conn.createStatement();
         return stmt.executeQuery(
                 "SELECT * FROM match_weather WHERE description LIKE '%rain%' OR description LIKE '%drizzle%' ORDER BY match_date DESC");
     }
 
     public ResultSet queryAll() throws SQLException {
-        Connection conn = DriverManager.getConnection(DB_URL);
+        Connection conn = DriverManager.getConnection(dbUrl);
         Statement stmt = conn.createStatement();
         return stmt.executeQuery("SELECT * FROM match_weather ORDER BY match_date DESC");
     }
