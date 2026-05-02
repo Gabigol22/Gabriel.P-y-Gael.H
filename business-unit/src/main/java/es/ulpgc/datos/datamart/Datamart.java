@@ -4,9 +4,10 @@ import java.sql.*;
 
 public class Datamart {
 
-    private static final String DB_URL = "jdbc:sqlite:datamart.db";
+    private final String dbUrl;
 
-    public Datamart() {
+    public Datamart(String databasePath) {
+        this.dbUrl = "jdbc:sqlite:" + databasePath;
         createTableIfNotExists();
     }
 

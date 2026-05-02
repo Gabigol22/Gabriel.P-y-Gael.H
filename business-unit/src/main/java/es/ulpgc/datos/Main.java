@@ -8,15 +8,16 @@ import es.ulpgc.datos.history.HistoryLoader;
 public class Main {
 
     public static void main(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Uso: Main <broker-url> <eventstore-path>");
+        if (args.length < 3) {
+            System.out.println("Uso: Main <broker-url> <eventstore-path> <datamart-path>");
             return;
         }
 
         String brokerUrl = args[0];
         String eventStorePath = args[1];
+        String datamartPath = args[2];
 
-        Datamart datamart = new Datamart();
+        Datamart datamart = new Datamart(datamartPath);
 
         System.out.println("Cargando histórico...");
         HistoryLoader loader = new HistoryLoader(datamart, eventStorePath);
