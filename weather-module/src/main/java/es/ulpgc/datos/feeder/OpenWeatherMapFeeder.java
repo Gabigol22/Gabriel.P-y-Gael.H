@@ -15,8 +15,8 @@ public class OpenWeatherMapFeeder implements WeatherFeeder {
 
     private static final List<String> CITIES = List.of(
             "Madrid", "Barcelona", "Seville", "Valencia", "Bilbao",
-            "Girona", "Pamplona", "Palma", "San Sebastian",
-            "Villarreal", "Vigo", "Vitoria", "Elche", "Oviedo"
+            "Girona", "Pamplona", "Palma de Mallorca", "San Sebastian",
+            "Villarreal", "Vigo", "Vitoria-Gasteiz", "Elche", "Oviedo"
     );
 
     private final WeatherMapper mapper = new WeatherMapper();

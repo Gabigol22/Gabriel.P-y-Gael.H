@@ -3,12 +3,10 @@ package es.ulpgc.datos.history;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import es.ulpgc.datos.datamart.Datamart;
-
 import java.io.IOException;
 import java.nio.file.*;
 
 public class HistoryLoader {
-
     private final Datamart datamart;
     private final String eventStorePath;
 
@@ -18,43 +16,51 @@ public class HistoryLoader {
     }
 
     public void loadFootballHistory() {
-        Path footballPath = Paths.get(eventStorePath, "Football", "football-feeder");
-        loadFromPath(footballPath, "Football");
+        loadFromPath(Paths.get(eventStorePath, "Football"), "Football");
+        loadFromPath(Paths.get(eventStorePath, "Weather"), "Weather");
     }
 
     private void loadFromPath(Path basePath, String topic) {
-        if (!Files.exists(basePath)) {
-            System.out.println("No hay histórico en: " + basePath);
-            return;
-        }
-        try {
-            Files.walk(basePath)
-                    .filter(p -> p.toString().endsWith(".events"))
+        if (!Files.exists(basePath)) return;
+        try (var stream = Files.walk(basePath)) {
+            stream.filter(p -> p.toString().endsWith(".events"))
                     .forEach(file -> loadFile(file, topic));
         } catch (IOException e) {
-            System.err.println("Error al leer histórico: " + e.getMessage());
+            System.err.println("Error en ruta: " + e.getMessage());
         }
     }
 
     private void loadFile(Path file, String topic) {
         try {
             Files.lines(file).forEach(line -> {
-                if (line.isBlank()) return;
-                JsonObject event = JsonParser.parseString(line).getAsJsonObject();
-                if (topic.equals("Football")) {
-                    String homeTeam = event.get("homeTeam").getAsString();
-                    String awayTeam = event.get("awayTeam").getAsString();
-                    String matchDate = event.get("matchDate").getAsString();
-                    String ts = event.get("ts").getAsString();
-                    String city = getCityForTeam(homeTeam);
-                    int homeScore = event.get("homeScore").getAsInt();
-                    int awayScore = event.get("awayScore").getAsInt();
-                    datamart.insertMatchWeather(homeTeam, awayTeam, homeScore, awayScore, matchDate, city, 0, 0, "N/A", ts);
+                try {
+                    if (line.isBlank()) return;
+                    JsonObject event = JsonParser.parseString(line).getAsJsonObject();
+                    if (topic.equals("Football")) {
+                        String home = event.get("homeTeam").getAsString();
+                        String away = event.get("awayTeam").getAsString();
+
+                        // Extraer fecha: GSON guarda LocalDateTime como objeto o string.
+                        String date = event.get("matchDate").toString().replace("\"", "");
+
+                        int hScore = event.get("homeScore").getAsInt();
+                        int aScore = event.get("awayScore").getAsInt();
+
+                        datamart.insertMatchWeather(home, away, hScore, aScore, date, getCityForTeam(home), 0, 0, "N/A", date);
+                    } else if (topic.equals("Weather")) {
+                        datamart.updateWeather(
+                                event.get("city").getAsString(),
+                                event.get("temperature").getAsDouble(),
+                                event.get("humidity").getAsInt(),
+                                event.get("description").getAsString()
+                        );
+                    }
+                } catch (Exception e) {
+                    System.err.println("Línea corrupta en " + file.getFileName() + ": " + e.getMessage());
                 }
             });
-            System.out.println("Histórico cargado: " + file.getFileName());
         } catch (IOException e) {
-            System.err.println("Error al leer archivo: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 
@@ -67,11 +73,11 @@ public class HistoryLoader {
             case "Athletic Club" -> "Bilbao";
             case "Girona FC" -> "Girona";
             case "CA Osasuna" -> "Pamplona";
-            case "RCD Mallorca" -> "Palma";
+            case "RCD Mallorca" -> "Palma de Mallorca";
             case "Real Sociedad de Fútbol" -> "San Sebastian";
             case "Villarreal CF" -> "Villarreal";
             case "RC Celta de Vigo" -> "Vigo";
-            case "Deportivo Alavés" -> "Vitoria";
+            case "Deportivo Alavés" -> "Vitoria-Gasteiz";
             case "Elche CF" -> "Elche";
             case "Real Oviedo" -> "Oviedo";
             default -> "Unknown";
