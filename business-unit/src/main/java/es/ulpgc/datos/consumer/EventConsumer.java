@@ -4,22 +4,20 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import es.ulpgc.datos.datamart.Datamart;
 import org.apache.activemq.ActiveMQConnectionFactory;
-
 import javax.jms.*;
 
 public class EventConsumer {
-
-    private static final String CLIENT_ID = "business-unit-" + System.currentTimeMillis();
+    private static final String CLIENT_ID = "business-unit-static-v1";
     private final String brokerUrl;
     private final Datamart datamart;
 
     public EventConsumer(String brokerUrl, Datamart datamart) {
-        this.brokerUrl = "failover:(" + brokerUrl + ")?maxReconnectAttempts=10&initialReconnectDelay=1000";
+        this.brokerUrl = "failover:(" + brokerUrl + ")?maxReconnectAttempts=10";
         this.datamart = datamart;
     }
 
     public void subscribe(String topicName) {
-        Thread thread = new Thread(() -> {
+        new Thread(() -> {
             while (true) {
                 try {
                     ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(brokerUrl);
@@ -29,73 +27,63 @@ public class EventConsumer {
 
                     Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
                     Topic topic = session.createTopic(topicName);
-                    MessageConsumer consumer = session.createDurableSubscriber(topic, "bu-sub-" + topicName);
-
-                    System.out.println("Business Unit suscrito al topic: " + topicName);
+                    MessageConsumer consumer = session.createDurableSubscriber(topic, "sub-" + topicName);
 
                     while (true) {
-                        Message message = consumer.receive(1000);
+                        Message message = consumer.receive();
                         if (message instanceof TextMessage textMessage) {
-                            String json = textMessage.getText();
-                            JsonObject event = JsonParser.parseString(json).getAsJsonObject();
-                            processEvent(topicName, event);
+                            try {
+                                JsonObject event = JsonParser.parseString(textMessage.getText()).getAsJsonObject();
+                                processEvent(topicName, event);
+                            } catch (Exception e) {
+                                System.err.println("Error procesando mensaje: " + e.getMessage());
+                            }
                         }
                     }
-
                 } catch (JMSException e) {
-                    System.err.println("Error en " + topicName + ": " + e.getMessage());
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
+                    try { Thread.sleep(5000); } catch (InterruptedException ie) { break; }
                 }
             }
-        });
-        thread.setDaemon(false);
-        thread.start();
+        }).start();
     }
 
     private void processEvent(String topic, JsonObject event) {
         if (topic.equals("Football")) {
-            String homeTeam = event.get("homeTeam").getAsString();
-            String awayTeam = event.get("awayTeam").getAsString();
-            String matchDate = event.get("matchDate").getAsString();
-            String ts = event.get("ts").getAsString();
-            String city = getCityForTeam(homeTeam);
-            int homeScore = event.get("homeScore").getAsInt();
-            int awayScore = event.get("awayScore").getAsInt();
-            datamart.insertMatchWeather(homeTeam, awayTeam, homeScore, awayScore, matchDate, city, 0, 0, "N/A", ts);
+            String home = event.get("homeTeam").getAsString();
+            String date = event.get("matchDate").toString().replace("\"", "");
+            datamart.insertMatchWeather(
+                    home,
+                    event.get("awayTeam").getAsString(),
+                    event.get("homeScore").getAsInt(),
+                    event.get("awayScore").getAsInt(),
+                    date,
+                    getCityForTeam(home),
+                    0, 0, "N/A", date
+            );
         } else if (topic.equals("Weather")) {
-            String city = event.get("city").getAsString();
-            double temperature = event.get("temperature").getAsDouble();
-            int humidity = event.get("humidity").getAsInt();
-            String description = event.get("description").getAsString();
-            datamart.updateWeather(city, temperature, humidity, description);
+            datamart.updateWeather(
+                    event.get("city").getAsString(),
+                    event.get("temperature").getAsDouble(),
+                    event.get("humidity").getAsInt(),
+                    event.get("description").getAsString()
+            );
         }
     }
 
     private String getCityForTeam(String team) {
         return switch (team) {
-            case "Real Madrid CF" -> "Madrid";
-            case "FC Barcelona" -> "Barcelona";
-            case "Sevilla FC" -> "Seville";
-            case "Valencia CF" -> "Valencia";
+            case "Real Madrid CF", "Club Atlético de Madrid", "Getafe CF", "Rayo Vallecano de Madrid" -> "Madrid";
+            case "FC Barcelona", "RCD Espanyol de Barcelona" -> "Barcelona";
+            case "Sevilla FC", "Real Betis Balompié" -> "Seville";
+            case "Valencia CF", "Levante UD" -> "Valencia";
             case "Athletic Club" -> "Bilbao";
             case "Girona FC" -> "Girona";
             case "CA Osasuna" -> "Pamplona";
             case "RCD Mallorca" -> "Palma";
-            case "Club Atlético de Madrid" -> "Madrid";
             case "Real Sociedad de Fútbol" -> "San Sebastian";
             case "Villarreal CF" -> "Villarreal";
-            case "Real Betis Balompié" -> "Seville";
             case "RC Celta de Vigo" -> "Vigo";
-            case "Getafe CF" -> "Madrid";
-            case "Rayo Vallecano de Madrid" -> "Madrid";
-            case "RCD Espanyol de Barcelona" -> "Barcelona";
             case "Deportivo Alavés" -> "Vitoria";
-            case "Levante UD" -> "Valencia";
             case "Elche CF" -> "Elche";
             case "Real Oviedo" -> "Oviedo";
             default -> "Unknown";
