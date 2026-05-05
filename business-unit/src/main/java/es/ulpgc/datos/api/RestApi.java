@@ -21,17 +21,25 @@ public class RestApi {
 
         getMatches(app);
 
-        app.get("/partidos/{city}", ctx -> {
-            String city = ctx.pathParam("city");
-            ctx.json(resultSetToJson(datamart.queryByCity(city)).toString());
-        });
+        getMatchesByCity(app);
 
-        app.get("/partidos/equipo/{team}", ctx -> {
-            String team = ctx.pathParam("team");
-            ctx.json(resultSetToJson(datamart.queryByTeam(team)).toString());
-        });
+        getMatchesByTeam(app);
 
-        app.get("/tiempo/{city}", ctx -> {
+        getWeatherByCity(app);
+
+        getRainAlerts(app);
+
+        System.out.println("API REST iniciada en http://localhost:" + port);
+    }
+
+    private void getRainAlerts(Javalin app) {
+        app.get("/alerts/rain", ctx -> {
+            ctx.json(resultSetToJson(datamart.queryRainyMatches()).toString());
+        });
+    }
+
+    private void getWeatherByCity(Javalin app) {
+        app.get("/weather/{city}", ctx -> {
             String city = ctx.pathParam("city");
             ResultSet rs = datamart.queryWeatherByCity(city);
             JsonObject obj = new JsonObject();
@@ -41,20 +49,28 @@ public class RestApi {
                 obj.addProperty("humidity", rs.getInt("humidity"));
                 obj.addProperty("description", rs.getString("description"));
             } else {
-                obj.addProperty("message", "No hay datos para " + city);
+                obj.addProperty("message", "No data for " + city);
             }
             ctx.json(obj.toString());
         });
+    }
 
-        app.get("/alertas/lluvia", ctx -> {
-            ctx.json(resultSetToJson(datamart.queryRainyMatches()).toString());
+    private void getMatchesByTeam(Javalin app) {
+        app.get("/matches/team/{team}", ctx -> {
+            String team = ctx.pathParam("team");
+            ctx.json(resultSetToJson(datamart.queryByTeam(team)).toString());
         });
+    }
 
-        System.out.println("API REST iniciada en http://localhost:" + port);
+    private void getMatchesByCity(Javalin app) {
+        app.get("/matches/{city}", ctx -> {
+            String city = ctx.pathParam("city");
+            ctx.json(resultSetToJson(datamart.queryByCity(city)).toString());
+        });
     }
 
     private void getMatches(Javalin app) {
-        app.get("/partidos", ctx -> {
+        app.get("/matches", ctx -> {
             ctx.json(resultSetToJson(datamart.queryAll()).toString());
         });
     }
