@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>football-module</module>
+        <module>football-feeder</module>
         <module>event-store-builder</module>
         <module>weather-module</module>
         <module>business-unit</module>

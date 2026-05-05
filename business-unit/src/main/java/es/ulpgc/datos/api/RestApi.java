@@ -19,9 +19,7 @@ public class RestApi {
     public void start(int port) {
         Javalin app = Javalin.create().start(port);
 
-        app.get("/partidos", ctx -> {
-            ctx.json(resultSetToJson(datamart.queryAll()).toString());
-        });
+        getMatches(app);
 
         app.get("/partidos/{city}", ctx -> {
             String city = ctx.pathParam("city");
@@ -53,6 +51,12 @@ public class RestApi {
         });
 
         System.out.println("API REST iniciada en http://localhost:" + port);
+    }
+
+    private void getMatches(Javalin app) {
+        app.get("/partidos", ctx -> {
+            ctx.json(resultSetToJson(datamart.queryAll()).toString());
+        });
     }
 
     private JsonArray resultSetToJson(ResultSet rs) throws SQLException {
